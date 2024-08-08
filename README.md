@@ -159,7 +159,7 @@ NODE_ENV=dev NODE_API_PORT=9100 OFFCHAIN_API_PORT=3523 OFFCHAIN_MAX_EXECUTION_TI
 powerpool-agent-v2-compose/docker-compose.yaml
 check logs
 ```
-docker logs --tail 100 -f powerpool-agent-v2-compose-agent-latest-1
+docker logs --tail 100 -f powerpool-agent-v2-compose-agent-dev-1
 
 ```
 
