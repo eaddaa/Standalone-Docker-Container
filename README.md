@@ -266,4 +266,104 @@ NODE_ENV=dev NODE_API_PORT=9300 OFFCHAIN_API_PORT=3624 OFFCHAIN_MAX_EXECUTION_TI
 
 ```
 
+NODE_API_PORT: 9400
+OFFCHAIN_API_PORT: 3724
 
+```
+version: "3.9"
+
+services:
+  agent-lilzey:
+    image: powerpool/power-agent-node:dev
+    restart: always
+    volumes:
+      - ./config:/usr/app/config
+      - ./keys:/usr/app/keys
+    ports:
+      - "${NODE_API_PORT:-9400}:${NODE_API_PORT:-9400}"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      API_PORT: ${NODE_API_PORT:-9400}
+      OFFCHAIN_SERVICE_ENDPOINT: http://offchain-service:${OFFCHAIN_API_PORT:-3724}
+    profiles: [dev]
+
+  offchain-service-lilzey:
+    image: powerpool/power-agent-offchain-service:latest
+    restart: always
+    volumes:
+      - ./scriptsFetched:/scriptsFetched
+      - ./scriptToExecute:/scriptToExecute
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "${OFFCHAIN_API_PORT:-3724}:${OFFCHAIN_API_PORT:-3724}"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      API_PORT: ${OFFCHAIN_API_PORT:-3724}
+      AGENT_API_PORT: ${NODE_API_PORT:-9400}
+      DOCKER_MODE: 1
+      MAX_EXECUTION_TIME: ${OFFCHAIN_MAX_EXECUTION_TIME}
+    profiles: [dev]
+
+  temp-executor-lilzey:
+    image: node:18-alpine
+    restart: "no"
+    command: ["echo", "This is a temporary executor"]
+    profiles: [dev]
+```
+
+```
+NODE_ENV=dev NODE_API_PORT=9400 OFFCHAIN_API_PORT=3724 OFFCHAIN_MAX_EXECUTION_TIME=300 docker compose --profile dev up -d
+
+```
+
+
+NODE_API_PORT: 9500
+OFFCHAIN_API_PORT: 3824
+
+```
+version: "3.9"
+
+services:
+  agent-another:
+    image: powerpool/power-agent-node:dev
+    restart: always
+    volumes:
+      - ./config:/usr/app/config
+      - ./keys:/usr/app/keys
+    ports:
+      - "${NODE_API_PORT:-9500}:${NODE_API_PORT:-9500}"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      API_PORT: ${NODE_API_PORT:-9500}
+      OFFCHAIN_SERVICE_ENDPOINT: http://offchain-service:${OFFCHAIN_API_PORT:-3824}
+    profiles: [dev]
+
+  offchain-service-another:
+    image: powerpool/power-agent-offchain-service:latest
+    restart: always
+    volumes:
+      - ./scriptsFetched:/scriptsFetched
+      - ./scriptToExecute:/scriptToExecute
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "${OFFCHAIN_API_PORT:-3824}:${OFFCHAIN_API_PORT:-3824}"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      API_PORT: ${OFFCHAIN_API_PORT:-3824}
+      AGENT_API_PORT: ${NODE_API_PORT:-9500}
+      DOCKER_MODE: 1
+      MAX_EXECUTION_TIME: ${OFFCHAIN_MAX_EXECUTION_TIME}
+    profiles: [dev]
+
+  temp-executor-another:
+    image: node:18-alpine
+    restart: "no"
+    command: ["echo", "This is a temporary executor"]
+    profiles: [dev]
+
+```
+
+```
+NODE_ENV=dev NODE_API_PORT=9500 OFFCHAIN_API_PORT=3824 OFFCHAIN_MAX_EXECUTION_TIME=300 docker compose --profile dev up -d
+
+```
