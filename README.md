@@ -216,3 +216,54 @@ cd ~/powerpool-agent-v2-compose
 NODE_ENV=dev NODE_API_PORT=8199 OFFCHAIN_API_PORT=3424 OFFCHAIN_MAX_EXECUTION_TIME=300 docker compose --profile latest up -d
 
 ```
+NODE_API_PORT: 9300
+OFFCHAIN_API_PORT: 3624
+
+```
+version: "3.9"
+
+services:
+  agent-dev:
+    image: powerpool/power-agent-node:dev
+    restart: always
+    volumes:
+      - ./config:/usr/app/config
+      - ./keys:/usr/app/keys
+    ports:
+      - "${NODE_API_PORT:-9300}:${NODE_API_PORT:-9300}"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      API_PORT: ${NODE_API_PORT:-9300}
+      OFFCHAIN_SERVICE_ENDPOINT: http://offchain-service:${OFFCHAIN_API_PORT:-3624}
+    profiles: [dev]
+
+  offchain-service:
+    image: powerpool/power-agent-offchain-service:latest
+    restart: always
+    volumes:
+      - ./scriptsFetched:/scriptsFetched
+      - ./scriptToExecute:/scriptToExecute
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "${OFFCHAIN_API_PORT:-3624}:${OFFCHAIN_API_PORT:-3624}"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      API_PORT: ${OFFCHAIN_API_PORT:-3624}
+      AGENT_API_PORT: ${NODE_API_PORT:-9300}
+      DOCKER_MODE: 1
+      MAX_EXECUTION_TIME: ${OFFCHAIN_MAX_EXECUTION_TIME}
+    profiles: [dev]
+
+  temp-executor:
+    image: node:18-alpine
+    restart: "no"
+    command: ["echo", "This is a temporary executor"]
+    profiles: [dev]
+```
+
+```
+NODE_ENV=dev NODE_API_PORT=9300 OFFCHAIN_API_PORT=3624 OFFCHAIN_MAX_EXECUTION_TIME=300 docker compose --profile dev up -d
+
+```
+
+
